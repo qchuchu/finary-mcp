@@ -70,6 +70,12 @@ const server = new McpServer(
 					.max(500)
 					.optional()
 					.describe("Items per page (default 100)"),
+				marked: z
+					.boolean()
+					.optional()
+					.describe(
+						"Filter by reconciled status: false = only unticked (à pointer), true = only ticked. Omit for all.",
+					),
 			},
 			annotations: {
 				readOnlyHint: true,
@@ -81,7 +87,7 @@ const server = new McpServer(
 				description: "Transactions list",
 			},
 		},
-		async ({ startDate, endDate, page, perPage }) => {
+		async ({ startDate, endDate, page, perPage, marked }) => {
 			const p = page ?? 1;
 			const pp = perPage ?? 100;
 			const transactions = await listTransactions({
@@ -89,6 +95,7 @@ const server = new McpServer(
 				endDate,
 				page: p,
 				perPage: pp,
+				marked,
 			});
 			const income = transactions
 				.filter((t) => t.value > 0)

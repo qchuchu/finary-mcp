@@ -11,7 +11,7 @@ categorize your transactions from an AI assistant (Claude, ChatGPT).
 
 | Tool | Kind | What it does |
 |------|------|--------------|
-| `list-transactions` | view | Transactions over a date range — visual list with income/expense totals and a ticked/not-ticked marker per row. |
+| `list-transactions` | view | Transactions over a date range (optional `marked` filter for ticked/unticked only) — visual list with income/expense totals and a ticked/not-ticked marker per row. |
 | `list-categories` | tool | All categories & subcategories with their IDs. |
 | `update-transactions` | tool | Batch update: assign a category, rename, and/or tick transactions as reconciled ("Pointer la transaction"). Categorizing also ticks by default. Runs in batches of 10. |
 

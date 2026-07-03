@@ -41,7 +41,7 @@ Update a transaction (conversational):
 ## Tools and Views
 
 **View: list-transactions** — `readOnly`
-- Input: `{ startDate?, endDate?, page?, perPage? }` (dates `YYYY-MM-DD`; default current month; `page` default 1, `perPage` default 100)
+- Input: `{ startDate?, endDate?, page?, perPage?, marked? }` (dates `YYYY-MM-DD`; default current month; `page` default 1, `perPage` default 100). `marked` filters server-side: `false` = only unticked (à pointer), `true` = only ticked, omit = all.
 - Output: `{ transactions[], count, markedCount, totalIncome, totalExpenses, page, perPage, hasMore, nextPage }`
 - Pagination: Finary returns no page metadata, so `hasMore` is inferred (`count === perPage`) and `nextPage` tells the caller which page to fetch next. Totals are **per page**, not the whole range.
 - Each transaction: `{ id, date, name, value, currency, marked, categoryId, category, account }`.

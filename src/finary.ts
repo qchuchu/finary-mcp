@@ -223,6 +223,7 @@ export async function listTransactions(opts: {
   endDate?: string;
   page?: number;
   perPage?: number;
+  marked?: boolean;
 }): Promise<Transaction[]> {
   const ctx = await getContext();
   const qs = new URLSearchParams();
@@ -230,6 +231,7 @@ export async function listTransactions(opts: {
   if (opts.endDate) qs.set("end_date", opts.endDate);
   qs.set("per_page", String(opts.perPage ?? 100));
   if (opts.page) qs.set("page", String(opts.page));
+  if (opts.marked !== undefined) qs.set("marked", String(opts.marked)); // filter by reconciled status
   const { result } = await api<{ result: RawTransaction[] }>(`${base(ctx)}/transactions?${qs}`);
   return result.map(normalizeTransaction);
 }
