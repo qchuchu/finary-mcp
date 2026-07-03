@@ -14,7 +14,8 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "skybridge": "^1.2.3",
-    "vite": "^8.1.3"
+    "vite": "^8.1.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@skybridge/devtools": "^1.2.3",

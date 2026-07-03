@@ -25,6 +25,35 @@ pnpm run dev            # server at http://localhost:3000/mcp, DevTools at http:
 
 Connect a client with `npm run dev:tunnel` and add `{tunnel-url}/mcp` as a custom connector.
 
+### Add to Claude Code
+
+Replace `YOUR-MCP-URL` with your deployment (or tunnel) host. The `Authorization` header is
+only needed if you set `MCP_BASIC_AUTH=user:pass` on the server — the value is the base64 of
+that same `user:pass`.
+
+```bash
+claude mcp add --transport http finary https://YOUR-MCP-URL/mcp \
+  --header "Authorization: Basic $(printf '%s' 'USER:PASSWORD' | base64)"
+```
+
+Or in `.mcp.json` (project) / `~/.claude.json` (user):
+
+```json
+{
+  "mcpServers": {
+    "finary": {
+      "type": "http",
+      "url": "https://YOUR-MCP-URL/mcp",
+      "headers": {
+        "Authorization": "Basic <base64 of USER:PASSWORD>"
+      }
+    }
+  }
+}
+```
+
+Drop the `--header` flag / `headers` block if `MCP_BASIC_AUTH` is unset.
+
 ### Authentication
 
 The only secret is your Finary Clerk `__client` cookie — the server uses it to mint the
