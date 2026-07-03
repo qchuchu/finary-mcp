@@ -1,7 +1,8 @@
 import { timingSafeEqual } from "node:crypto";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { McpServer } from "skybridge/server";
 import { z } from "zod";
-import { listCategories, listTransactions, setCategory } from "./finary.js";
+import { listCategories, listTransactions, updateTransaction } from "./finary.js";
 
 // Load .env locally. In production (Alpic) there's no file — env comes from the platform.
 try {
@@ -18,11 +19,10 @@ function safeEqual(a: string, b: string): boolean {
 
 // Optional HTTP Basic Auth guarding /mcp. Unset → open (fine for local/tunnel use).
 // Set MCP_BASIC_AUTH="user:pass" to require credentials when deployed publicly.
-// deno-lint-ignore no-explicit-any
-function basicAuth(req: any, res: any, next: () => void) {
+function basicAuth(req: IncomingMessage, res: ServerResponse, next: () => void) {
 	const expected = process.env.MCP_BASIC_AUTH;
 	if (!expected) return next();
-	const [scheme, encoded] = String(req.headers?.authorization ?? "").split(" ");
+	const [scheme, encoded] = String(req.headers.authorization ?? "").split(" ");
 	if (
 		scheme === "Basic" &&
 		encoded &&
@@ -141,16 +141,27 @@ const server = new McpServer(
 	)
 	.registerTool(
 		{
-			name: "categorize-transaction",
+			name: "update-transaction",
 			description:
-				"Assign a category to a transaction (from list-categories) and tick it as reconciled " +
-				'("Pointer la transaction"). Reversible — just re-assign to change the category.',
+				"Update a transaction: assign a category (from list-categories), rename it, and/or " +
+				'tick it as reconciled ("Pointer la transaction"). Categorizing also ticks it by ' +
+				"default. Provide at least one field to change. Reversible.",
 			inputSchema: {
 				transactionId: z.number().int().describe("Transaction id"),
 				categoryId: z
 					.number()
 					.int()
+					.optional()
 					.describe("Category id from list-categories"),
+				name: z
+					.string()
+					.min(1)
+					.optional()
+					.describe("New display name (renames the transaction)"),
+				marked: z
+					.boolean()
+					.optional()
+					.describe("Tick/untick as reconciled; defaults to true when categorizing"),
 			},
 			annotations: {
 				readOnlyHint: false,
@@ -158,14 +169,25 @@ const server = new McpServer(
 				destructiveHint: false,
 			},
 		},
-		async ({ transactionId, categoryId }) => {
-			const tx = await setCategory(transactionId, categoryId);
+		async ({ transactionId, categoryId, name, marked }) => {
+			if (categoryId === undefined && name === undefined && marked === undefined) {
+				throw new Error(
+					"Nothing to update — provide at least one of categoryId, name, or marked.",
+				);
+			}
+			// By design: categorizing also ticks the transaction, unless the caller overrides.
+			const effectiveMarked = marked ?? (categoryId !== undefined ? true : undefined);
+			const tx = await updateTransaction(transactionId, {
+				categoryId,
+				name,
+				marked: effectiveMarked,
+			});
 			return {
 				structuredContent: { transaction: tx },
 				content: [
 					{
 						type: "text",
-						text: `"${tx.name}" is now categorized as ${tx.category ?? "uncategorized"} and ticked${tx.marked ? "" : " (tick not applied)"}.`,
+						text: `Updated "${tx.name}": category ${tx.category ?? "uncategorized"}, ${tx.marked ? "ticked" : "not ticked"}.`,
 					},
 				],
 			};

@@ -13,14 +13,14 @@ categorize your transactions from an AI assistant (Claude, ChatGPT).
 |------|------|--------------|
 | `list-transactions` | view | Transactions over a date range — visual list with income/expense totals and a ticked/not-ticked marker per row. |
 | `list-categories` | tool | All categories & subcategories with their IDs. |
-| `categorize-transaction` | tool | Assign a category **and** tick the transaction as reconciled ("Pointer la transaction"). |
+| `update-transaction` | tool | Assign a category, rename, and/or tick a transaction as reconciled ("Pointer la transaction"). Categorizing also ticks it by default. |
 
 ## Setup
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env   # then fill in FINARY_CLERK_CLIENT (see .env.example for how)
-npm run dev            # server at http://localhost:3000/mcp, DevTools at http://localhost:3000
+pnpm run dev            # server at http://localhost:3000/mcp, DevTools at http://localhost:3000
 ```
 
 Connect a client with `npm run dev:tunnel` and add `{tunnel-url}/mcp` as a custom connector.

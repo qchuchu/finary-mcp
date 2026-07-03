@@ -242,12 +242,21 @@ export async function listCategories(): Promise<Category[]> {
   return flattenCategories(result);
 }
 
-export async function setCategory(transactionId: number, categoryId: number): Promise<Transaction> {
+export async function updateTransaction(
+  transactionId: number,
+  patch: { categoryId?: number; name?: string; marked?: boolean },
+): Promise<Transaction> {
   const ctx = await getContext();
-  // By design: categorizing also ticks ("pointe") the transaction as reconciled.
+  // Finary uses PUT here. Category assignment is `custom_subcategory_id` (accepts a
+  // main-category OR subcategory id); `category_id` is silently ignored. `display_name`
+  // renames, `marked` ticks — all in one PUT.
+  const body: Record<string, unknown> = {};
+  if (patch.categoryId !== undefined) body.custom_subcategory_id = patch.categoryId;
+  if (patch.name !== undefined) body.display_name = patch.name;
+  if (patch.marked !== undefined) body.marked = patch.marked;
   const { result } = await api<{ result: RawTransaction }>(`${base(ctx)}/transactions/${transactionId}`, {
-    method: "PATCH",
-    body: JSON.stringify({ category_id: categoryId, marked: true }),
+    method: "PUT",
+    body: JSON.stringify(body),
   });
   return normalizeTransaction(result);
 }
