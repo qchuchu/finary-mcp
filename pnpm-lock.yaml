@@ -11,6 +11,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.4.3)
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
       skybridge:
         specifier: ^1.2.3
         version: 1.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(@skybridge/devtools@1.2.3(typescript@6.0.3))(@types/react@19.2.17)(nodemon@3.1.14)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vite@8.1.3(@types/node@24.13.2)(esbuild@0.28.1)(tsx@4.22.5))(zod@4.4.3)
