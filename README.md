@@ -1,0 +1,45 @@
+# finary-mcp
+
+An unofficial [MCP](https://modelcontextprotocol.io/) server over [Finary](https://finary.com)'s
+**cashflow** feature, built with [Skybridge](https://docs.skybridge.tech). Browse and
+categorize your transactions from an AI assistant (Claude, ChatGPT).
+
+> Finary has no official API. This talks to the same private API the web app uses.
+> Personal use, your own account. No affiliation with Finary.
+
+## Tools
+
+| Tool | Kind | What it does |
+|------|------|--------------|
+| `list-transactions` | view | Transactions over a date range — visual list with income/expense totals and a ticked/not-ticked marker per row. |
+| `list-categories` | tool | All categories & subcategories with their IDs. |
+| `categorize-transaction` | tool | Assign a category **and** tick the transaction as reconciled ("Pointer la transaction"). |
+
+## Setup
+
+```bash
+npm install
+cp .env.example .env   # then fill in FINARY_CLERK_CLIENT (see .env.example for how)
+npm run dev            # server at http://localhost:3000/mcp, DevTools at http://localhost:3000
+```
+
+Connect a client with `npm run dev:tunnel` and add `{tunnel-url}/mcp` as a custom connector.
+
+### Authentication
+
+The only secret is your Finary Clerk `__client` cookie — the server uses it to mint the
+short-lived tokens each API call needs. See [`.env.example`](.env.example) for how to copy
+it. Optionally protect the `/mcp` endpoint with HTTP Basic Auth (`MCP_BASIC_AUTH=user:pass`).
+
+## Design & API notes
+
+See [`SPEC.md`](SPEC.md) for the auth flow, the reverse-engineered Finary endpoints, and the
+data shapes.
+
+## Deploy
+
+`npm run deploy` (Alpic). Set env vars in the platform — never ship `.env`.
+
+## License
+
+MIT
