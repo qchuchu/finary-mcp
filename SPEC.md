@@ -41,8 +41,9 @@ Update a transaction (conversational):
 ## Tools and Views
 
 **View: list-transactions** — `readOnly`
-- Input: `{ startDate?, endDate?, page?, perPage? }` (dates `YYYY-MM-DD`; default current month)
-- Output: `{ transactions[], count, markedCount, totalIncome, totalExpenses }`
+- Input: `{ startDate?, endDate?, page?, perPage? }` (dates `YYYY-MM-DD`; default current month; `page` default 1, `perPage` default 100)
+- Output: `{ transactions[], count, markedCount, totalIncome, totalExpenses, page, perPage, hasMore, nextPage }`
+- Pagination: Finary returns no page metadata, so `hasMore` is inferred (`count === perPage`) and `nextPage` tells the caller which page to fetch next. Totals are **per page**, not the whole range.
 - Each transaction: `{ id, date, name, value, currency, marked, categoryId, category, account }`.
   `marked` = the "Pointer la transaction" toggle (French *pointer*: ticked/reconciled).
 - View: inline list (top 8) with income/expense totals and a per-row ticked/not-ticked dot; expands to fullscreen for the full list.
@@ -51,10 +52,10 @@ Update a transaction (conversational):
 - Input: `{}`
 - Output: `{ categories[] }` — flattened main + subcategories, each `{ id, name, isSubcategory, isCustom, parentId, parentName }`.
 
-**Tool: update-transaction** — writes, reversible
-- Input: `{ transactionId: number, categoryId?: number, name?: string, marked?: boolean }` (at least one mutable field)
-- Behavior: `name` renames (maps to `display_name`); categorizing defaults `marked` to true unless overridden.
-- Output: `{ transaction }` — the updated transaction.
+**Tool: update-transactions** — writes, reversible, batch
+- Input: `{ updates: Array<{ transactionId, categoryId?, name?, marked? }> }` (1–200; each item needs ≥1 mutable field)
+- Behavior: `name` renames (maps to `display_name`); categorizing defaults `marked` to true unless overridden. Runs in batches of 10 concurrent requests; per-item failures are isolated.
+- Output: `{ results[], okCount, failCount }` — each result `{ transactionId, ok, name, category, marked, error }`.
 
 ## Finary private API reference
 

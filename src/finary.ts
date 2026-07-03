@@ -242,6 +242,38 @@ export async function listCategories(): Promise<Category[]> {
   return flattenCategories(result);
 }
 
+export type TxUpdate = { transactionId: number; categoryId?: number; name?: string; marked?: boolean };
+export type TxUpdateResult = { transactionId: number; ok: boolean; transaction?: Transaction; error?: string };
+
+/** Split an array into fixed-size groups. */
+export function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+/**
+ * Apply many transaction updates, running `batchSize` at a time so we don't
+ * overload the API. One failing item doesn't sink the rest — it's reported.
+ */
+export async function updateTransactions(updates: TxUpdate[], batchSize = 10): Promise<TxUpdateResult[]> {
+  const out: TxUpdateResult[] = [];
+  for (const group of chunk(updates, batchSize)) {
+    const results = await Promise.all(
+      group.map(async (u): Promise<TxUpdateResult> => {
+        try {
+          const transaction = await updateTransaction(u.transactionId, u);
+          return { transactionId: u.transactionId, ok: true, transaction };
+        } catch (e) {
+          return { transactionId: u.transactionId, ok: false, error: e instanceof Error ? e.message : String(e) };
+        }
+      }),
+    );
+    out.push(...results);
+  }
+  return out;
+}
+
 export async function updateTransaction(
   transactionId: number,
   patch: { categoryId?: number; name?: string; marked?: boolean },

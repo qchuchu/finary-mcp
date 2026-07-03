@@ -13,7 +13,7 @@ categorize your transactions from an AI assistant (Claude, ChatGPT).
 |------|------|--------------|
 | `list-transactions` | view | Transactions over a date range — visual list with income/expense totals and a ticked/not-ticked marker per row. |
 | `list-categories` | tool | All categories & subcategories with their IDs. |
-| `update-transaction` | tool | Assign a category, rename, and/or tick a transaction as reconciled ("Pointer la transaction"). Categorizing also ticks it by default. |
+| `update-transactions` | tool | Batch update: assign a category, rename, and/or tick transactions as reconciled ("Pointer la transaction"). Categorizing also ticks by default. Runs in batches of 10. |
 
 ## Setup
 
@@ -32,8 +32,8 @@ only needed if you set `MCP_BASIC_AUTH=user:pass` on the server — the value is
 that same `user:pass`.
 
 ```bash
-claude mcp add --transport http finary https://YOUR-MCP-URL/mcp \
-  --header "Authorization: Basic $(printf '%s' 'USER:PASSWORD' | base64)"
+claude mcp add --transport http finary https://finary-7b77cc05.alpic.live/mcp \
+  --header "Authorization: Basic $(printf '%s' 'quentin:utfrXeMKF6s^7b8n$wgF' | base64)"
 ```
 
 Or in `.mcp.json` (project) / `~/.claude.json` (user):

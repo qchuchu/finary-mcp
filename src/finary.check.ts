@@ -1,6 +1,14 @@
 // Self-check for the pure helpers (no network). Run: node --import tsx src/finary.check.ts
 import assert from "node:assert";
-import { flattenCategories, jwtExp } from "./finary.js";
+import { chunk, flattenCategories, jwtExp } from "./finary.js";
+
+// chunk: fixed-size groups, last group may be partial; empty → []
+assert.deepEqual(
+  chunk([1, 2, 3, 4, 5], 2).map((g) => g.length),
+  [2, 2, 1],
+);
+assert.deepEqual(chunk([], 10), []);
+assert.deepEqual(chunk([1, 2], 10), [[1, 2]]);
 
 // flattenCategories: nested → flat, parent linkage preserved
 const flat = flattenCategories([
